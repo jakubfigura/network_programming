@@ -30,6 +30,6 @@ int main(void)
         i++;
     }
 
-    drukuj(liczby, 50);
+    drukuj(liczby, i);
     
 }
