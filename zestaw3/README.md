@@ -11,3 +11,10 @@ gcc -std=c99 -pedantic -Wall udp_srv_palindrom.c  -o palindrom
 ```
 netcat -u 127.0.0.1 2020 
 ```
+
+### Sprawdzanie wyników datagramów w pliku
+
+```
+netcat -u 127.0.0.1 2020 > t1.txt
+od -A d -t u1 -t c < t1.txt
+```
