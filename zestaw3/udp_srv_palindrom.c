@@ -104,7 +104,7 @@ int main(void)
 
     
         if(!validate(buf, cnt)){
-            sendto(sock, "ERROR", 6, 0, (struct sockaddr *) &clnt_addr, clnt_addr_len);
+            sendto(sock, "ERROR", 5, 0, (struct sockaddr *) &clnt_addr, clnt_addr_len);
             continue;
         }
 
