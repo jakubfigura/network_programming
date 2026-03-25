@@ -104,7 +104,7 @@ int main(void)
 
     
         if(!validate(buf, cnt)){
-            sendto(sock, "ERROR\n", 6, 0, (struct sockaddr *) &clnt_addr, clnt_addr_len);
+            sendto(sock, "ERROR", 6, 0, (struct sockaddr *) &clnt_addr, clnt_addr_len);
             continue;
         }
 
@@ -126,7 +126,7 @@ int main(void)
         }
 
         char response[RESPONSE_SIZE];
-        int response_len = snprintf(response, sizeof(response), "%d/%d\n", palindromes, total);
+        int response_len = snprintf(response, sizeof(response), "%d/%d", palindromes, total);
         sendto(sock, response, response_len, 0, (struct sockaddr *) &clnt_addr, clnt_addr_len);
 
     }
