@@ -12,7 +12,18 @@
 #include <stdbool.h>
 #include <ctype.h>
 
+bool is_ascii_letter(unsigned char c){
+    return (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z');
+}
 
+int to_lower(int c){
+
+    if(c >= 'A' && c <= 'Z'){
+        return c + 32;
+    }
+
+    return c;
+}
 
 bool validate(unsigned char *buf, ssize_t cnt){
     /*funkcja sprawdzająca poprawność danych w buforze*/
@@ -35,7 +46,8 @@ bool validate(unsigned char *buf, ssize_t cnt){
             }
         }
         /*sprawdzenie, czy znaki to litery a-z[A-Z] lub spacja*/
-        if(!isalpha(buf[i]) && buf[i] != ' '){
+        // zakres ASCII 
+        if(!is_ascii_letter(buf[i]) && buf[i] != ' '){
             return false;
         }
     }
@@ -45,8 +57,8 @@ bool validate(unsigned char *buf, ssize_t cnt){
 bool is_palindrom(unsigned char *word, int len){
     /* sprawdzamy, czy wyraz jest palindromem, ignorowana jest wielkość liter poprzez tolower*/
     for(int i = 0, j = len - 1; i < j; i++, j--){
-
-        if(tolower(word[i]) != tolower(word[j])){
+        //TODO
+        if(to_lower(word[i]) != to_lower(word[j])){
             return false;
         }
     }
@@ -104,7 +116,11 @@ int main(void)
 
     
         if(!validate(buf, cnt)){
-            sendto(sock, "ERROR", 5, 0, (struct sockaddr *) &clnt_addr, clnt_addr_len);
+            cnt = sendto(sock, "ERROR", 5, 0, (struct sockaddr *) &clnt_addr, clnt_addr_len);
+            if(cnt == -1){
+                perror("sendto");
+                return 1;
+            }
             continue;
         }
 
@@ -127,7 +143,12 @@ int main(void)
 
         char response[RESPONSE_SIZE];
         int response_len = snprintf(response, sizeof(response), "%d/%d", palindromes, total);
-        sendto(sock, response, response_len, 0, (struct sockaddr *) &clnt_addr, clnt_addr_len);
+        
+        cnt = sendto(sock, response, response_len, 0, (struct sockaddr *) &clnt_addr, clnt_addr_len);
+        if(cnt == -1){
+            perror("sendto");
+            return 1;
+        }
 
     }
 
