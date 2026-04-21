@@ -73,7 +73,6 @@ bool validate(unsigned char *buf, ssize_t cnt){
 bool is_palindrom(unsigned char *word, int len){
     /* sprawdzamy, czy wyraz jest palindromem, ignorowana jest wielkość liter poprzez tolower*/
     for(int i = 0, j = len - 1; i < j; i++, j--){
-        //TODO
         if(to_lower(word[i]) != to_lower(word[j])){
             return false;
         }
@@ -97,7 +96,10 @@ int main(void)
     }
 
     int opt = 1;
-    setsockopt(srv_sock, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
+    if (setsockopt(srv_sock, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)) == -1) {
+        perror("setsockopt");
+        return 1;
+    }
 
     struct sockaddr_in addr = {
         .sin_family = AF_INET, 
@@ -186,8 +188,10 @@ int main(void)
 
                 ssize_t n = read(fd, c->buf + c->buf_len, LINE_LIMIT - c->buf_len);
                 if(n <= 0){
-                    epoll_ctl(epoll_fd, EPOLL_CTL_DEL, fd, NULL);
-                    close(fd);
+                    if (epoll_ctl(epoll_fd, EPOLL_CTL_DEL, fd, NULL) == -1)
+                        perror("epoll_ctl DEL");
+                    if (close(fd) == -1)
+                        perror("close");
                     c->fd = -1;
                     c->buf_len = 0;
                     continue;
@@ -196,8 +200,10 @@ int main(void)
                 c->buf_len += n;
 
                 if (c->buf_len == LINE_LIMIT) {
-                    epoll_ctl(epoll_fd, EPOLL_CTL_DEL, fd, NULL);
-                    close(fd);
+                    if (epoll_ctl(epoll_fd, EPOLL_CTL_DEL, fd, NULL) == -1)
+                        perror("epoll_ctl DEL");
+                    if (close(fd) == -1)
+                        perror("close");
                     c->fd = -1;
                     c->buf_len = 0;
                     continue;
@@ -211,7 +217,16 @@ int main(void)
                         }
 
                         if (!validate((unsigned char *)c->buf, line_len)) {
-                            write(fd, "ERROR\r\n", 7);
+                            if (write(fd, "ERROR\r\n", 7) == -1) {
+                                perror("write");
+                                if (epoll_ctl(epoll_fd, EPOLL_CTL_DEL, fd, NULL) == -1)
+                                    perror("epoll_ctl DEL");
+                                if (close(fd) == -1)
+                                    perror("close");
+                                c->fd = -1;
+                                c->buf_len = 0;
+                                break;
+                            }
                         } else {
                             int total = 0;
                             int palindromes = 0;
@@ -232,7 +247,16 @@ int main(void)
 
                             char response[RESPONSE_SIZE];
                             int response_len = snprintf(response, sizeof(response), "%d/%d\r\n", palindromes, total);
-                            write(fd, response, response_len);
+                            if (write(fd, response, response_len) == -1) {
+                                perror("write");
+                                if (epoll_ctl(epoll_fd, EPOLL_CTL_DEL, fd, NULL) == -1)
+                                    perror("epoll_ctl DEL");
+                                if (close(fd) == -1)
+                                    perror("close");
+                                c->fd = -1;
+                                c->buf_len = 0;
+                                break;
+                            }
                         }
 
                         int consumed = j + 1;
