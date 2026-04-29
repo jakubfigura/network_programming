@@ -103,7 +103,7 @@ int main(void)
 
     struct sockaddr_in addr = {
         .sin_family = AF_INET, 
-        .sin_addr.s_addr = htonl(INADDR_ANY), 
+        .sin_addr.s_addr = htonl(INADDR_ANY), //wszystkie dostepne interfejsy
         .sin_port = htons(PORT)
     };
 
@@ -190,6 +190,7 @@ int main(void)
                 if(n <= 0){
                     if (epoll_ctl(epoll_fd, EPOLL_CTL_DEL, fd, NULL) == -1)
                         perror("epoll_ctl DEL");
+                        //zamykamy caly program
                     if (close(fd) == -1)
                         perror("close");
                     c->fd = -1;
