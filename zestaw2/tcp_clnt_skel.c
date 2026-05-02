@@ -34,8 +34,9 @@ int main(int argc, char *argv[])
         return 1;
     }
 
-    sock = socket(AF_INET, SOCK_STREAM, 0);
-    if (sock == -1) {
+    //tworzenie gniazdka sieciowego
+    sock = socket(AF_INET, SOCK_STREAM, 0); //AF_INET - rodzina adresow IPv4, SOCK_STREAM - protokoł strumieniowy
+    if (sock == -1) {   //obsługa błędow
         perror("socket");
         return 1;
     }
@@ -43,9 +44,9 @@ int main(int argc, char *argv[])
     port = atoi(argv[2]);
 
     struct sockaddr_in addr = {
-        .sin_family = AF_INET,
+        .sin_family = AF_INET, //adres z rodziny IPv4
         .sin_addr = { .s_addr = inet_addr(argv[1]) },   // 127.0.0.1
-        .sin_port = htons(port)
+        .sin_port = htons(port) //numer portu podawany z klawiatury 
     };
 
     rc = connect(sock, (struct sockaddr *) & addr, sizeof(addr));
