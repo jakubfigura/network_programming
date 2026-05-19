@@ -11,7 +11,7 @@ def api_get(url):
     while True:
         resp = requests.get(url, headers=HEADERS)
         if resp.status_code == 429:
-            print("Oczekiwanie..., przekroczono limit zapytań\n")
+            print("Oczekiwanie na odpowiedź, proszę czekać, przekroczono limit zapytań\n")
             # czekamy, w systuacjach, gdy przekroczyliśmy limit zapytań 
             time.sleep(60)
             continue
@@ -91,7 +91,7 @@ def main():
     else:
         for band_name, matching in results:
             names = ', '.join(artist_names[aid] for aid in matching)
-            print(f"Artyści: {names} grali razem w zespole: {band_name}")
+            print(f"{band_name}: w tym zespole grali razem artyści: {names}")
 
         artists_in_common = {aid for _, matching in results for aid in matching}
         excluded_artist = [artist_names[aid] for aid in artist_ids if aid not in artists_in_common]
